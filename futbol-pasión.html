@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FUTB⚽L PASI⚽N</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Arial', sans-serif;
+      background-color: #0b3d0b;
+      color: white;
+    }
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background-color: #004d00;
+      padding: 10px 20px;
+    }
+    h1 {
+      font-size: 1.5rem;
+      margin: 0;
+      color: #fff;
+    }
+    #menu-btn {
+      font-size: 1.5rem;
+      background: none;
+      border: none;
+      color: white;
+      cursor: pointer;
+    }
+    #menu {
+      position: fixed;
+      top: 0;
+      left: -260px;
+      width: 250px;
+      height: 100%;
+      background-color: #013220;
+      padding: 20px;
+      box-shadow: 2px 0 10px rgba(0,0,0,0.5);
+      transition: left 0.3s ease;
+      overflow-y: auto;
+    }
+    #menu.active {
+      left: 0;
+    }
+    #menu h2 {
+      font-size: 1.2rem;
+      border-bottom: 1px solid #0a0;
+      padding-bottom: 5px;
+    }
+    .country {
+      margin-top: 15px;
+    }
+    .league {
+      margin-left: 10px;
+      font-size: 0.95rem;
+      color: #cfc;
+    }
+    main {
+      padding: 20px;
+    }
+    .match {
+      background: #006400;
+      border-radius: 10px;
+      padding: 10px;
+      margin-bottom: 10px;
+    }
+    footer {
+      text-align: center;
+      padding: 10px;
+      background-color: #004d00;
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+      font-size: 0.8rem;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <button id="menu-btn">☰</button>
+    <h1>FUTB⚽L PASI⚽N</h1>
+  </header>
+
+  <div id="menu">
+    <h2>COMPETENCIAS</h2>
+
+    <div class="country">
+      🇦🇷 <strong>Argentina</strong>
+      <div class="league">• Liga Argentina</div>
+      <div class="league">• Copa Argentina</div>
+    </div>
+
+    <div class="country">
+      🏴 <strong>Inglaterra</strong>
+      <div class="league">• Premier League</div>
+      <div class="league">• FA Cup</div>
+      <div class="league">• Carabao Cup</div>
+      <div class="league">• Community Shield</div>
+    </div>
+
+    <div class="country">
+      🇪🇸 <strong>España</strong>
+      <div class="league">• Liga Española</div>
+      <div class="league">• Copa del Rey</div>
+    </div>
+
+    <div class="country">
+      🇮🇹 <strong>Italia</strong>
+      <div class="league">• Serie A</div>
+      <div class="league">• Copa Italia</div>
+    </div>
+
+    <div class="country">
+      🇩🇪 <strong>Alemania</strong>
+      <div class="league">• Bundesliga</div>
+      <div class="league">• DFB Pokal</div>
+    </div>
+
+    <div class="country">
+      🇫🇷 <strong>Francia</strong>
+      <div class="league">• Ligue 1</div>
+      <div class="league">• Copa de Francia</div>
+    </div>
+
+    <div class="country">
+      🇵🇹 <strong>Portugal</strong>
+      <div class="league">• Primeira Liga</div>
+      <div class="league">• Taça de Portugal</div>
+    </div>
+
+    <div class="country">
+      🇧🇷 <strong>Brasil</strong>
+      <div class="league">• Brasileirão</div>
+      <div class="league">• Copa do Brasil</div>
+    </div>
+
+    <div class="country">
+      🇺🇾 <strong>Uruguay</strong>
+      <div class="league">• Primera División</div>
+      <div class="league">• Copa Uruguay</div>
+    </div>
+
+    <div class="country">
+      🇵🇾 <strong>Paraguay</strong>
+      <div class="league">• Primera División</div>
+      <div class="league">• Copa Paraguay</div>
+    </div>
+  </div>
+
+  <main>
+    <h2>Partidos del día</h2>
+    <div id="matches">
+      <p>Cargando partidos...</p>
+    </div>
+  </main>
+
+  <footer>
+    ⚽ Datos actualizados automáticamente | FUTB⚽L PASI⚽N
+  </footer>
+
+  <script>
+    const apiKey = "cd8fba9aa3be3c152a0ab0814058dfc7"; 
+    const menuBtn = document.getElementById("menu-btn");
+    const menu = document.getElementById("menu");
+
+    menuBtn.addEventListener("click", () => {
+      menu.classList.toggle("active");
+    });
+
+    async function cargarPartidos() {
+      const matchesDiv = document.getElementById("matches");
+      try {
+        const response = await fetch(`https://api-football-v1.p.rapidapi.com/v3/fixtures?live=all`, {
+          headers: {
+            "x-rapidapi-key": apiKey,
+            "x-rapidapi-host": "api-football-v1.p.rapidapi.com"
+          }
+        });
+        const data = await response.json();
+
+        matchesDiv.innerHTML = "";
+        if (data.response.length === 0) {
+          matchesDiv.innerHTML = "<p>No hay partidos en este momento.</p>";
+          return;
+        }
+
+        data.response.forEach(match => {
+          const item = document.createElement("div");
+          item.className = "match";
+          item.innerHTML = `
+            <strong>${match.teams.home.name}</strong> ${match.goals.home ?? 0} - ${match.goals.away ?? 0} <strong>${match.teams.away.name}</strong><br>
+            <small>${match.league.name} (${match.league.country})</small>
+          `;
+          matchesDiv.appendChild(item);
+        });
+      } catch (error) {
+        matchesDiv.innerHTML = "<p>Error al cargar los partidos.</p>";
+      }
+    }
+
+    cargarPartidos();
+    setInterval(cargarPartidos, 60000); // Actualiza cada 60 segundos
+  </script>
+</body>
+</html>
